@@ -8,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class User {
 
@@ -17,6 +19,7 @@ public class User {
 	@Column(unique = true, nullable = false)
 	private String username;
 	@Column(nullable = false)
+	@JsonIgnore
 	private String password;
 	@Column(nullable = false)
 	private String name;
