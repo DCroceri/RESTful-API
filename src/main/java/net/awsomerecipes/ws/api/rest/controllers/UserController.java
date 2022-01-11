@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,8 @@ import net.awsomerecipes.ws.api.rest.beans.User;
 import net.awsomerecipes.ws.api.rest.facades.UserFacade;
 
 @RestController
-@RequestMapping(path="/users")
+@RequestMapping(path="/api/users")
+@PreAuthorize("hasAuthority('admin')")
 public class UserController {
 
 	@Autowired
@@ -57,15 +59,6 @@ public class UserController {
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
 		userFacade.deleteUser(id);
-	}
-
-	@GetMapping("/username/{username}")
-	public ResponseEntity<User> getByUsername(@PathVariable String username) {
-		User user = userFacade.getUserByUsername(username);
-		if(user == null) {
-			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
 }

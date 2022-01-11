@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +25,7 @@ import net.awsomerecipes.ws.api.rest.facades.RecipeFacade;
 import net.awsomerecipes.ws.api.rest.facades.UserFacade;
 
 @RestController
-@RequestMapping(path="/recipes")
+@RequestMapping(path="/api/recipes")
 public class RecipeController {
 
 	@Autowired
@@ -43,39 +45,67 @@ public class RecipeController {
 			Recipe recipe = recipeFacade.getRecipe(id);
 			return new ResponseEntity<Recipe>(recipe, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
-			return new ResponseEntity<Recipe>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 	@PostMapping("/")
-	public void add(@RequestBody Recipe recipe) {
+	@PreAuthorize("hasAuthority('chef')")
+	public void add(@RequestBody Recipe recipe,
+						@CurrentSecurityContext(expression="authentication?.name") String username) {
+		recipe.setAuthor(
+				userFacade.findByUsername(username));
 		recipeFacade.saveRecipe(recipe);
 	}
 	@PutMapping("/{id}")
-	public ResponseEntity<?> update(@RequestBody Recipe recipe, @PathVariable Long id) {
+	@PreAuthorize("hasAuthority('chef')")
+	public ResponseEntity<?> update(@RequestBody Recipe recipe, @PathVariable Long id,
+										@CurrentSecurityContext(expression="authentication?.name") String username) {
 		try {
-			@SuppressWarnings("unused")
 			Recipe existsRecipe = recipeFacade.getRecipe(id);
-			recipe.setId(id);
-			recipeFacade.saveRecipe(recipe);
-			return new ResponseEntity<>(HttpStatus.OK);
+			User chef = userFacade.findByUsername(username);
+			if (existsRecipe.getAuthor().getId().equals(chef.getId())) {
+				recipe.setAuthor(chef);
+				recipe.setId(id);
+				recipeFacade.saveRecipe(recipe);
+				return new ResponseEntity<Recipe>(recipe, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 	@DeleteMapping("/{id}")
-	public void delete(@PathVariable Long id) {
-		recipeFacade.deleteRecipe(id);
+	@PreAuthorize("hasAuthority('chef')")
+	public ResponseEntity<?> delete(@PathVariable Long id,
+										@CurrentSecurityContext(expression="authentication?.name") String username) {
+		try {
+			Recipe existsRecipe = recipeFacade.getRecipe(id);
+			User chef = userFacade.findByUsername(username);
+			if (existsRecipe.getAuthor().getId().equals(chef.getId())) {
+				recipeFacade.deleteRecipe(id);
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@GetMapping("/author/{userid}")
 	public ResponseEntity<?> listByAuthor(@PathVariable Long userid) {
 		try {
 			User author = userFacade.getUser(userid);
-			List<Recipe> list = recipeFacade.listByAuthor(author);
+			List<Recipe> list = recipeFacade.findByAuthor(author);
 			return new ResponseEntity<List<Recipe>>(list, HttpStatus.OK);
 		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+	@PostMapping("/keywords")
+	public List<Recipe> searchByKeywords(@RequestBody KeywordList list) {
+		return recipeFacade.findByKeyword(list.keywords);
 	}
 
 	@GetMapping("/{id}/comments")
@@ -89,10 +119,13 @@ public class RecipeController {
 		}
 	}
 	@PostMapping("/{id}/comments")
-	public ResponseEntity<?> addComment(@RequestBody Comment comment, @PathVariable Long id) {
+	@PreAuthorize("hasAuthority('user')")
+	public ResponseEntity<?> addComment(@RequestBody Comment comment, @PathVariable Long id,
+											@CurrentSecurityContext(expression="authentication?.name") String username) {
 		try {
 			Recipe existsRecipe = recipeFacade.getRecipe(id);
 			comment.setRecipe(existsRecipe);
+			comment.setUser(userFacade.findByUsername(username));
 			commentFacade.saveComment(comment);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (NoSuchElementException e) {
@@ -100,4 +133,7 @@ public class RecipeController {
 		}
 	}
 
+	static class KeywordList {
+		public List<String> keywords;
+	}
 }

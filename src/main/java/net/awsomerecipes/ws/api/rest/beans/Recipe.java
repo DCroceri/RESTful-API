@@ -17,7 +17,7 @@ import javax.persistence.OneToMany;
 @Entity
 public class Recipe {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	@ManyToOne
 	private User author;

@@ -1,5 +1,6 @@
 package net.awsomerecipes.ws.api.rest.facades.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -40,8 +41,16 @@ public class RecipeFacadeImpl implements RecipeFacade {
 	}
 
 	@Override
-	public List<Recipe> listByAuthor(User author) {
-		return recipeDao.listByAuthor(author);
+	public List<Recipe> findByAuthor(User author) {
+		return recipeDao.findByAuthor(author);
 	}
 
+	@Override
+	public List<Recipe> findByKeyword(List<String> keywords) {
+		List<Recipe> result = new ArrayList<Recipe>();
+		for (String keyword: keywords) {
+			result.addAll(recipeDao.findByKeywordsContaining(keyword));
+		}
+		return result;
+	}
 }

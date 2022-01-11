@@ -15,6 +15,8 @@ public interface RecipeFacade {
 
 	void deleteRecipe(Long id);
 
-	List<Recipe> listByAuthor(User author);
+	List<Recipe> findByAuthor(User author);
+
+	List<Recipe> findByKeyword(List<String> keywords);
 
 }

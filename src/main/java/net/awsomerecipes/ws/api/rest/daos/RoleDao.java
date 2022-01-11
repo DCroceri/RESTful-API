@@ -6,4 +6,6 @@ import net.awsomerecipes.ws.api.rest.beans.Role;
 
 public interface RoleDao extends JpaRepository<Role, Long> {
 
+	Role findByName(String name);
+
 }

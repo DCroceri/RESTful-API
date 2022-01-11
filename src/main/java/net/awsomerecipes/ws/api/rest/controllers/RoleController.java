@@ -1,6 +1,7 @@
 package net.awsomerecipes.ws.api.rest.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,8 @@ import net.awsomerecipes.ws.api.rest.beans.Role;
 import net.awsomerecipes.ws.api.rest.facades.RoleFacade;
 
 @RestController
-@RequestMapping(path="/roles")
+@RequestMapping(path="/api/roles")
+@PreAuthorize("hasAuthority('admin')")
 public class RoleController {
 
 	@Autowired

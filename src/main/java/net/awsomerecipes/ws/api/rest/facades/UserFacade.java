@@ -14,6 +14,12 @@ public interface UserFacade {
 
 	void deleteUser(Long id);
 
-	User getUserByUsername(String username);
+	void newUser(User user);
+
+	User findByUsername(String username);
+
+	User findByEmail(String email);
+
+	void changePassword(String oldPassword, String newPassword);
 
 }
