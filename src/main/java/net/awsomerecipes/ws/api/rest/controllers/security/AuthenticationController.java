@@ -65,7 +65,7 @@ public class AuthenticationController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		User user = (User) authentication.getPrincipal();
-		String jws = tokenHelper.generateToken(user.getUsername());
+		String jws = tokenHelper.generateToken(user.getUsername(), user.getRole().getName());
 		Long expiresIn = tokenHelper.getExpirationTime();
 
 		return ResponseEntity.ok(new UserTokenState(jws, expiresIn, user.getRole().getName()));
@@ -80,8 +80,9 @@ public class AuthenticationController {
 		if (authToken != null && principal != null) {
 			String refreshedToken = tokenHelper.refreshToken(authToken);
 			Long expiresIn = tokenHelper.getExpirationTime();
+			String role = tokenHelper.getRoleFromToken(authToken);
 
-			return ResponseEntity.ok(new UserTokenState(refreshedToken, expiresIn));
+			return ResponseEntity.ok(new UserTokenState(refreshedToken, expiresIn, role));
 
 		} else {
 			UserTokenState userTokenState = new UserTokenState();
@@ -97,6 +98,11 @@ public class AuthenticationController {
 		Map<String, String> result = new HashMap<>();
 		result.put("result", "success");
 		return ResponseEntity.accepted().body(result);
+	}
+
+	@RequestMapping("/whoami")
+	public User user(Principal user) {
+		return userFacade.findByUsername(user.getName());
 	}
 
 	static class PasswordChanger {

@@ -25,20 +25,22 @@ public class TokenHelper {
 	@Value("${spring.security.oauth2.header-name}")
 	private String AUTH_HEADER;
 
-	private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
+	private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
+	private static final String USERNAME = "username";
+	private static final String ROLE = "role";
 
 	public Long getExpirationTime() {
 		return EXPIRATION_TIME;
 	}
 
-	public String generateToken(String username) {
+	public String generateToken(String username, String role) {
 		Key key = Keys.hmacShaKeyFor(KEY.getBytes());
 		String token = Jwts.builder()
-						.setSubject(username)
+						.claim(USERNAME, username)
+						.claim(ROLE, role)
 						.setIssuedAt(new Date(System.currentTimeMillis()))
 						.setExpiration(generateExpirationDate())
-						.signWith(key, SIGNATURE_ALGORITHM)
-						.compact();
+						.signWith(key, SIGNATURE_ALGORITHM).compact();
 		return token;
 	}
 	public String refreshToken(String token) {
@@ -73,17 +75,25 @@ public class TokenHelper {
 	}
 
 	public String getToken( HttpServletRequest request ) {
-		return request.getHeader(AUTH_HEADER);
+		return request.getHeader(AUTH_HEADER).replace("Bearer ","");
 	}
 	public String getUsernameFromToken(String token) {
 		String username;
 		try {
 			final Claims claims = this.getAllClaimsFromToken(token);
-			username = claims.getSubject();
+			username = (String) claims.get(USERNAME);
 		} catch (Exception e) {
 			username = null;
 		}
 		return username;
+	}
+	public String getRoleFromToken(String token) {
+		String role = null;
+		try {
+			final Claims claims = this.getAllClaimsFromToken(token);
+			role = (String) claims.get(ROLE);
+		} catch (Exception logOrIgnore) { }
+		return role;
 	}
 	public Date getIssuedAtDateFromToken(String token) {
 		Date issueAt;

@@ -1,26 +1,26 @@
 package net.awsomerecipes.ws.api.rest.beans.security;
 
 public class UserTokenState {
-	private String access_token;
+	private String jwtToken;
 	private Long expires_in;
-	private String roleName;
+	private String role;
 
 	public UserTokenState() {}
 	public UserTokenState(String access_token, Long expires_in) {
-		this.access_token = access_token;
+		this.jwtToken = access_token;
 		this.expires_in = expires_in;
 	}
-	public UserTokenState(String access_token, Long expires_in, String roleName) {
-		this.access_token = access_token;
+	public UserTokenState(String access_token, Long expires_in, String role) {
+		this.jwtToken = access_token;
 		this.expires_in = expires_in;
-		this.roleName = roleName;
+		this.role = role;
 	}
 
-	public String getAccess_token() {
-		return access_token;
+	public String getJwtToken() {
+		return jwtToken;
 	}
-	public void setAccess_token(String access_token) {
-		this.access_token = access_token;
+	public void setJwtToken(String jwtToken) {
+		this.jwtToken = jwtToken;
 	}
 	public Long getExpires_in() {
 		return expires_in;
@@ -28,10 +28,10 @@ public class UserTokenState {
 	public void setExpires_in(Long expires_in) {
 		this.expires_in = expires_in;
 	}
-	public String getRoleName() {
-		return roleName;
+	public String getRole() {
+		return role;
 	}
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
+	public void setRole(String role) {
+		this.role = role;
 	}
 }
