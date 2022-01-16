@@ -14,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import net.awsomerecipes.ws.api.rest.beans.security.UserAuthority;
 import net.awsomerecipes.ws.api.rest.facades.security.impl.UserDetailsServiceImpl;
@@ -35,6 +37,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+	    return new WebMvcConfigurer() {
+	        @Override
+	        public void addCorsMappings(CorsRegistry registry) {
+	            registry.addMapping("/**")
+	                    .allowedOrigins("http://localhost:4200","http://127.0.0.1:4200/")
+	                    .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH")
+	                    .allowedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "origin", "Authorization", "Cache-Control", "Content-Type", "accept", "x-requested-with", "x-requested-by")
+	                    .allowCredentials(true);
+	        }
+	    };
+	}
 
 	@Autowired
 	public void configureGlobal( AuthenticationManagerBuilder auth ) throws Exception {
@@ -46,7 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
+		http.cors().and()
 				.sessionManagement().sessionCreationPolicy( SessionCreationPolicy.STATELESS ).and()
 				.authorizeRequests().antMatchers("/api/users/**",
 												 "/api/roles/**").hasAuthority(UserAuthority.ROLE_ADMIN.getName()).and()
@@ -66,7 +81,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers(
 				HttpMethod.POST,
 				"/auth/login",
-				"/auth/signup"
+				"/auth/signup",
+				"/auth/refresh"
 		);
 
 	}
