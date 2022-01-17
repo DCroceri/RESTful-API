@@ -72,12 +72,11 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/refresh")
-	public ResponseEntity<?> refreshAuthenticationToken(HttpServletRequest request, HttpServletResponse response,
-			Principal principal) {
+	public ResponseEntity<?> refreshAuthenticationToken(HttpServletRequest request, HttpServletResponse response) {
 
 		String authToken = tokenHelper.getToken(request);
 
-		if (authToken != null && principal != null) {
+		if (authToken != null) {
 			String refreshedToken = tokenHelper.refreshToken(authToken);
 			Long expiresIn = tokenHelper.getExpirationTime();
 			String role = tokenHelper.getRoleFromToken(authToken);
