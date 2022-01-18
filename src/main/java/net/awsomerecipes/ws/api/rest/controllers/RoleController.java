@@ -18,7 +18,7 @@ public class RoleController {
 	@Autowired
 	private RoleFacade roleFacade;
 
-	@PostMapping("/")
+	@PostMapping()
 	public void add(@RequestBody Role role) {
 		roleFacade.saveRole(role);
 	}

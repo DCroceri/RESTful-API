@@ -2,6 +2,7 @@ package net.awsomerecipes.ws.api.rest.controllers;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class RecipeController {
 	@Autowired
 	private UserFacade userFacade;
 
-	@GetMapping("/")
+	@GetMapping()
 	public List<Recipe> list() {
 		return recipeFacade.listAllRecipes();
 	}
@@ -48,7 +49,7 @@ public class RecipeController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
-	@PostMapping("/")
+	@PostMapping()
 	@PreAuthorize("hasAuthority('chef')")
 	public void add(@RequestBody Recipe recipe,
 						@CurrentSecurityContext(expression="authentication?.name") String username) {
@@ -105,6 +106,7 @@ public class RecipeController {
 	}
 	@PostMapping("/keywords")
 	public List<Recipe> searchByKeywords(@RequestBody KeywordList list) {
+		list.keywords = list.keywords.stream().map(String::trim).collect(Collectors.toList());
 		return recipeFacade.findByKeyword(list.keywords);
 	}
 

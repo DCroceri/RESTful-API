@@ -27,7 +27,7 @@ public class UserController {
 	@Autowired
 	private UserFacade userFacade;
 
-	@GetMapping("/")
+	@GetMapping()
 	public List<User> list() {
 		return userFacade.listAllUsers();
 	}
@@ -40,7 +40,7 @@ public class UserController {
 			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
 		}
 	}
-	@PostMapping("/")
+	@PostMapping()
 	public void add(@RequestBody User user) {
 		userFacade.saveUser(user);
 	}

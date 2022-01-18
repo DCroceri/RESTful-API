@@ -38,6 +38,9 @@ public class UserFacadeImpl implements UserFacade {
 
 	@Override
 	public void saveUser(User user) {
+		if (user.getRole().getId()== null) {
+			user.setRole(roleDao.findByName(user.getRole().getName()));
+		}
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		userDao.save(user);
 	}
@@ -55,8 +58,14 @@ public class UserFacadeImpl implements UserFacade {
 
 	@Override
 	public void newUser(User user) {
-		user.setRole(
-				roleDao.findByName(UserAuthority.ROLE_USER.getName()));
+		if (user.getRole()== null) {
+			user.setRole(roleDao.findByName(UserAuthority.ROLE_USER.getName()));
+		} else if (user.getRole().getId() != null) {
+			user.setRole(roleDao.findById(user.getRole().getId()).get());
+		} else if (user.getRole().getName() != null) {
+			user.setRole(roleDao.findByName(user.getRole().getName()));
+			
+		}
 		user.setEnabled(true);
 		this.saveUser(user);
 
