@@ -25,16 +25,16 @@ public class Recipe {
 	private String ingredients;
 	private String keywords;
 	@OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "recipe")
-	private List<Comment> coments;
+	private List<Comment> comments;
 
 
 	public Recipe() {}
-	public Recipe(Long id, User author, String ingredients, String keywords, List<Comment> coments) {
+	public Recipe(Long id, User author, String ingredients, String keywords, List<Comment> comments) {
 		this.id = id;
 		this.author = author;
 		this.ingredients = ingredients;
 		this.keywords = keywords;
-		this.coments = coments;
+		this.comments = comments;
 	}
 
 
@@ -62,17 +62,17 @@ public class Recipe {
 	public void setKeywords(List<String> keywords) {
 		this.keywords = String.join(",", keywords);
 	}
-	public List<Comment> getComents() {
-		return coments;
+	public List<Comment> getComments() {
+		return comments;
 	}
-	public void setComents(List<Comment> coments) {
-		this.coments = coments;
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 
 
 	@Override
 	public String toString() {
 		return "Recipe [id=" + id + ", author=" + author + ", ingredients=" + ingredients + ", keywords=" + keywords
-				+ ", coments=" + coments + "]";
+				+ ", comments=" + comments + "]";
 	}
 }
